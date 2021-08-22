@@ -1,18 +1,25 @@
 'use strict'
-
 const axios=require('axios')
-
+// const memorization = require('./memorization')
+const memoriz=[];
 const getTheMovies=async(request,response)=>{
     try {
       let city=request.query.query
-      let result=await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${city}`)
-      let mov=result.data.results.map(item =>{
-          return new Corresponding(item.title,item.overview,item.vote_average,item.vote_count,'https://image.tmdb.org/t/p/w500'+item.poster_path,item.popularity,item.release_date)
-      })
-      console.log(mov);
-      response.send(mov)
+      if(!memoriz[city]){
+        let result=await axios.get(`https://api.themoviedb.org/3/search/movie?api_key=${process.env.MOVIE_API_KEY}&query=${city}`)
+        let mov=result.data.results.map(item =>{
+            return new Corresponding(item.title,item.overview,item.vote_average,item.vote_count,item.poster_path,item.popularity,item.release_date)
+        })
+        response.send(mov)
+        memoriz[city]=result.data.results
+        console.log("from API movies");
+      }
+      else{
+          response.send(memoriz[city])
+          console.log('from object movies');
+      }
+     
     } catch (error) {
-        console.log(error);
         response.send(error)
     }
   }
